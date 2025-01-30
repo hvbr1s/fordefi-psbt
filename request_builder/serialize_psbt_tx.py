@@ -1,14 +1,15 @@
-def serialize():
-
-    with open("./partially_signed_tx/tx.psbt", "rb") as f:
-        psbt_bytes = f.read()
-
-    # Convert the raw PSBT bytes to hex
+def serialize(psbt_bytes):
+    """
+    Takes raw PSBT bytes and returns a JSON dict
+    with the field 'data' set to '0x' + hex string.
+    """
+    # Convert the raw PSBT bytes to a hex string
     psbt_hex = psbt_bytes.hex()
-
-    # Add 0x for the API:
+    
+    # Add '0x' for your API
     psbt_hex_prefixed = "0x" + psbt_hex
 
     json_data = {"data": psbt_hex_prefixed}
+    print(json_data)
 
     return json_data
