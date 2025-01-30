@@ -19,7 +19,7 @@ def construct_request(vault_id, taproot_address, raw_psbt_bytes):
                 "type": "utxo_partially_signed_bitcoin_transaction",
                 "psbt_raw_data": pstx,
                 "auto_finalize": True,
-                "sender": { # The signing address
+                "sender": { # The address that will sign the inputs
                     "address": taproot_address, # Must be from a Fordefi Vault
                     "address_type": "taproot", # Must be Taproot
                     "chain": {
@@ -27,14 +27,15 @@ def construct_request(vault_id, taproot_address, raw_psbt_bytes):
                         "unique_id": "bitcoin_mainnet"
                     },
                 },
-                "inputs": [ # OPTIONAL
+                "inputs": [ # OPTIONAL array describing how each input will be signed
                     {
-                    "index": 0,
-                    "signer_identity":{
-                        "type": "address",
-                        "address": "bc1pvustretgfqeuqmtfkjjymt93p3jlkwzzqk5j6j5ewdym9c8fwucshpt5kw"
+                        "index": 0,
+                        "signer_identity":{
+                            "type": "address",
+                            "address": taproot_address
+                        }
                     }
-                    }
+                    # OPTIONAL -> add more inputs here as needed
                 ],
                 "push_mode": "auto"
             }

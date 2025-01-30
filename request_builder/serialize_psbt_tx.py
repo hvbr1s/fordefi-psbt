@@ -6,7 +6,7 @@ def serialize(psbt_bytes):
     # Convert the raw PSBT bytes to a hex string
     psbt_hex = psbt_bytes.hex()
     
-    # Add '0x' for your API
+    # Add '0x' to avoid error with the Fordefi API
     psbt_hex_prefixed = "0x" + psbt_hex
 
     json_data = {"data": psbt_hex_prefixed}

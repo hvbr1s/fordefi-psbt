@@ -55,3 +55,23 @@ The script:
 2. Constructs an API request
 3. Signs the payload with your Fordefi API Signer
 4. Submits the transaction to Fordefi's API for processing onchain
+
+## Optional Parameters
+
+### Transaction Inputs
+You can specify input parameters for your transaction in `create_tx.py`. This is useful when you need to explicitly define which addresses are signing specific inputs:
+
+```python
+# Example input configuration
+inputs = [
+    {
+        "index": 0,  # Input index
+        "signer_identity": {
+            "type": "address",
+            "address": "bc1p..." # Taproot address that will sign this input
+        }
+    }
+]
+```
+
+These inputs will be included in the API request to specify which addresses should sign particular transaction inputs.
