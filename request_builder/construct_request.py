@@ -1,12 +1,5 @@
-
-from request_builder.serialize_psbt_tx import serialize
-
 def construct_request(vault_id, taproot_address, raw_psbt_bytes):
     
-    data = serialize(raw_psbt_bytes)
-    pstx = data["data"]
-    print(f"Partially signed transaction -> {pstx[:12]}...{pstx[-12:]}")
-
     print(f'Preparing transaction from Vault {vault_id}')
 
     request_json = {
@@ -17,7 +10,7 @@ def construct_request(vault_id, taproot_address, raw_psbt_bytes):
             "type": "utxo_transaction",
             "details": {
                 "type": "utxo_partially_signed_bitcoin_transaction",
-                "psbt_raw_data": pstx,
+                "psbt_raw_data": raw_psbt_bytes,
                 "auto_finalize": True,
                 "sender": { # The address that will sign the inputs
                     "address": taproot_address, # Must be from a Fordefi Vault

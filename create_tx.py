@@ -4,6 +4,7 @@ import json
 import requests
 from dotenv import load_dotenv
 from api_requests.push_to_api import make_api_request
+from request_builder.serialize_psbt_tx import serialize
 from request_builder.construct_request import construct_request
 from signing.signer import sign
 
@@ -20,14 +21,17 @@ def main():
         return
     
     # Process raw PSBT data
-    psbt_data = "0x70736274...."
-    # remove the leading "0x" if present
-    if psbt_data.startswith("0x"):
-        psbt_data = psbt_data[2:]
 
-    # decode to raw bytes
-    raw_psbt_bytes = bytes.fromhex(psbt_data)
-    request_json = construct_request(FORDEFI_BTC_VAULT_ID, FORDEFI_BTC_VAULT_TAPROOT_ADDRESS, raw_psbt_bytes)
+    # Declare the psbt data as hex
+    psbt_hex_data = "0x70736274..."
+    
+    # or fetch the psbt data from a .psbt file and serialize it to hex format
+    # with open('tx.psbt', 'rb') as f:
+    #     raw_psbt_bytes = f.read()
+    #     psbt_hex_data = serialize(raw_psbt_bytes)["data"]
+
+
+    request_json = construct_request(FORDEFI_BTC_VAULT_ID, FORDEFI_BTC_VAULT_TAPROOT_ADDRESS, psbt_hex_data)
 
     request_body = json.dumps(request_json)
     timestamp = datetime.datetime.now().strftime("%s")
@@ -37,6 +41,7 @@ def main():
 
     try: 
         method = "post"   
+        print("Making API request to Fordefi 📡")
         resp_tx = make_api_request(PATH, FORDEFI_API_USER_TOKEN, signature, timestamp, request_body, method=method)
         resp_tx.raise_for_status()
         return resp_tx
