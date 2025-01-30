@@ -4,7 +4,6 @@ import json
 import requests
 from dotenv import load_dotenv
 from api_requests.push_to_api import make_api_request
-from request_builder.serialize_psbt_tx import serialize
 from request_builder.construct_request import construct_request
 from signing.signer import sign
 
@@ -20,17 +19,9 @@ def main():
         print("Error: FORDEFI_API_TOKEN environment variable is not set")
         return
     
-    # Process raw PSBT data
-
-    # Declare the psbt data as hex
-    psbt_hex_data = "0x70736274..."
+    # Process hex PSBT data
+    psbt_hex_data = "0x70736274ff..."
     
-    # or fetch the psbt data from a .psbt file and serialize it to hex format
-    # with open('tx.psbt', 'rb') as f:
-    #     raw_psbt_bytes = f.read()
-    #     psbt_hex_data = serialize(raw_psbt_bytes)["data"]
-
-
     request_json = construct_request(FORDEFI_BTC_VAULT_ID, FORDEFI_BTC_VAULT_TAPROOT_ADDRESS, psbt_hex_data)
 
     request_body = json.dumps(request_json)
