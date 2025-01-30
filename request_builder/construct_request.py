@@ -1,7 +1,7 @@
 
 from request_builder.serialize_psbt_tx import serialize
 
-def construct_request(vault_id, raw_psbt_bytes):
+def construct_request(vault_id, taproot_address, raw_psbt_bytes):
     
     data = serialize(raw_psbt_bytes)
     pstx = data["data"]
@@ -9,7 +9,6 @@ def construct_request(vault_id, raw_psbt_bytes):
 
     print(f'Preparing transaction from Vault {vault_id}')
 
-    # Simple transfer
     request_json = {
             "vault_id": vault_id,
             "note": "string",
@@ -21,8 +20,8 @@ def construct_request(vault_id, raw_psbt_bytes):
                 "psbt_raw_data": pstx,
                 "auto_finalize": True,
                 "sender": { # The signing address
-                    "address": "bc1pvustretgfqeuqmtfkjjymt93p3jlkwzzqk5j6j5ewdym9c8fwucshpt5kw", # Must be a Fordefi Vault
-                    "address_type": "taproot", # Must be Taproot address
+                    "address": taproot_address, # Must be from a Fordefi Vault
+                    "address_type": "taproot", # Must be Taproot
                     "chain": {
                         "chain_type": "utxo",
                         "unique_id": "bitcoin_mainnet"
