@@ -39,9 +39,16 @@ A Python script for creating and submitting Bitcoin PSBT (Partially Signed Bitco
 
 ## Usage
 
-```bash
-python create_tx.py
-```
+1. Add your PSBT data in `create_tx.py`:
+   ```python
+   # In create_tx.py, replace the placeholder with your PSBT data
+   psbt_data = "0x70736274...." # Replace with your actual PSBT hex data
+   ```
+
+2. Run the script:
+   ```bash
+   python create_tx.py
+   ```
 
 The script:
 1. Processes raw PSBT data
