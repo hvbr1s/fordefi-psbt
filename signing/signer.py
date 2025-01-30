@@ -12,6 +12,6 @@ def sign(payload):
     signature = signing_key.sign(
         data=payload.encode(), hashfunc=hashlib.sha256, sigencode=ecdsa.util.sigencode_der
     )
-    print("Payload signed!")
+    print("Payload signed! ✅")
 
     return signature

@@ -5,7 +5,7 @@ def construct_request(vault_id, raw_psbt_bytes):
     
     data = serialize(raw_psbt_bytes)
     pstx = data["data"]
-    print(f"Partially signed transaction -> {pstx[:8]}...{pstx[-8:]}")
+    print(f"Partially signed transaction -> {pstx[:12]}...{pstx[-12:]}")
 
     print(f'Preparing transaction from Vault {vault_id}')
 
