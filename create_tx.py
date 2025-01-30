@@ -1,62 +1,71 @@
-from email.headerregistry import Address
 import os
 import datetime
 import json
 import requests
-from api_requests.broacast import broadcast_tx
+from api_requests.push_to_api import make_api_request
+from request_builder.serialize_psbt_tx import serialize
 from signing.signer import sign
 
+def construct_request():
+    
+    data = serialize()
+    pstx = data["data"]
+    print(f"Partially signed transaction -> {pstx[:8]}...{pstx[-8:]}")
 
-with open("./serialized.json", "r") as f:
-    data = json.load(f)
-pstx = data["data"]
-print(f"Partially signed transaction -> {pstx}")
-
-# Simple transfer
-request_json = {
-        "vault_id": "56d51e5d-507b-4f3c-b0ac-bf0e3352fa67",
-        "note": "string",
-        "signer_type": "api_signer",
-        "sign_mode": "triggered",
-        "type": "utxo_transaction",
-        "details": {
-            "type": "utxo_partially_signed_bitcoin_transaction",
-            "psbt_raw_data": pstx,
-            "auto_finalize": True,
-            "sender": {
-                "address": "bc1pvustretgfqeuqmtfkjjymt93p3jlkwzzqk5j6j5ewdym9c8fwucshpt5kw",
-                "address_type": "taproot",
-                "chain": {
-                    "chain_type": "utxo",
-                    "unique_id": "bitcoin_mainnet"
-                }
-            },
-            "inputs": [
-                {
+    # Simple transfer
+    request_json = {
+            "vault_id": "56d51e5d-507b-4f3c-b0ac-bf0e3352fa67",
+            "note": "string",
+            "signer_type": "api_signer",
+            "sign_mode": "auto",
+            "type": "utxo_transaction",
+            "details": {
+                "type": "utxo_partially_signed_bitcoin_transaction",
+                "psbt_raw_data": pstx,
+                "auto_finalize": True,
+                "sender": { # The signing address
+                    "address": "bc1pvustretgfqeuqmtfkjjymt93p3jlkwzzqk5j6j5ewdym9c8fwucshpt5kw", # Must be a Fordefi Vault
+                    "address_type": "taproot", # Must be Taproot address
+                    "chain": {
+                        "chain_type": "utxo",
+                        "unique_id": "bitcoin_mainnet"
+                    },
+                },
+                "inputs": [ # OPTIONAL
+                    {
                     "index": 0,
-                    "signer_identity": {
+                    "signer_identity":{
                         "type": "address",
-                        "address": "bc1qv9hnve34the4933d6zphhqyt3j52sh39d8h88ea5reqj3m53vzaqpxcz3x"  
+                        "address": "bc1pvustretgfqeuqmtfkjjymt93p3jlkwzzqk5j6j5ewdym9c8fwucshpt5kw"
                     }
-                }
-            ],
-            "push_mode": "auto"
-        }
-}
-
-access_token = os.getenv("FORDEFI_API_TOKEN")
-path = "/api/v1/transactions"
-request_body = json.dumps(request_json)
-timestamp = datetime.datetime.now().strftime("%s")
-payload = f"{path}|{timestamp}|{request_body}"
+                    }
+                ],
+                "push_mode": "auto"
+            }
+    }
+    return request_json
 
 
-def ping(path, access_token):
+FORDEFI_API_USER_TOKEN = os.getenv("FORDEFI_API_USER_TOKEN")
+PATH = "/api/v1/transactions"
 
+def main():
+
+    if not FORDEFI_API_USER_TOKEN:
+        print("Error: FORDEFI_API_TOKEN environment variable is not set")
+        return
+    
+    request_json = construct_request()
+
+    request_body = json.dumps(request_json)
+    timestamp = datetime.datetime.now().strftime("%s")
+    payload = f"{PATH}|{timestamp}|{request_body}"
+        
     signature = sign(payload=payload)
 
-    try:    
-        resp_tx = broadcast_tx(path, access_token, signature, timestamp, request_body)
+    try: 
+        method = "post"   
+        resp_tx = make_api_request(PATH, FORDEFI_API_USER_TOKEN, signature, timestamp, request_body, method=method)
         resp_tx.raise_for_status()
         return resp_tx
     except requests.exceptions.HTTPError as e:
@@ -70,21 +79,6 @@ def ping(path, access_token):
         raise RuntimeError(error_message)
     except requests.exceptions.RequestException as e:
         raise RuntimeError(f"Network error occurred: {str(e)}")
-
-def main():
-    if not access_token:
-        print("Error: FORDEFI_API_TOKEN environment variable is not set")
-        return
-        
-    try:
-        response = ping(path, access_token)
-        print(json.dumps(response.json(), indent=2))
-        data = response.json()
-
-        # Save data to a JSON file (RECOMMENDED TO RUN ONCE TO HAVE A GOOD VIEW OF THE OBJECT RETURNED BY THE API)
-        with open('response_data.json', 'w') as json_file:
-            json.dump(data, json_file, indent=2)
-        print("Data has been saved to 'response_data.json'")
 
     except Exception as e:
             print(f"Error: {str(e)}")

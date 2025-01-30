@@ -6,9 +6,15 @@ dist/
 wheels/
 *.egg-info
 
+# macOS
+.DS_Store
+
 # Virtual environments
 .venv
 
 # Secret
-secret
+secret/*
 .env
+
+# Misc
+bin
