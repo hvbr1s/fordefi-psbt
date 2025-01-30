@@ -5,6 +5,7 @@ build/
 dist/
 wheels/
 *.egg-info
+uv.lock
 
 # macOS
 .DS_Store
@@ -18,3 +19,4 @@ secret/*
 
 # Misc
 bin
+partially_sign
